@@ -54,9 +54,9 @@ sub nth : Tests{
 sub remove : Tests{
     my $list = My::List->new;
     my @data = ("Hello", "World", 2011);
-    foreach my $elem (@data){
-        $list->append($elem);
-    }
+    foreach my $elem (@data){ $list->append($elem); }
+
+    $list->remove(0);
     
 }
 

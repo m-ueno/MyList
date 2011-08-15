@@ -39,6 +39,7 @@ sub various_data : Tests{
     foreach my $elem (@$data){
         is $elem, $iter->next->value;
     }
+    diag explain $data;
 }
 
 # sub long_list : Tests{

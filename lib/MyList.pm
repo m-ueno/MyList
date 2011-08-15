@@ -63,7 +63,6 @@ sub iterator{
 }
 # 独自拡張
 # &insert(val,n) : 実行後、n番目(n=0,1,...)にvalがある状態になる。
-# &appendは insert(val,length)と書き直せる。
 sub insert{
     my ($self,$value,$n) = @_;
     if( $n>$self->length ){ return $self->append($value); }
@@ -87,7 +86,7 @@ sub nth{                               # 0から
 
     my $iter = $self->iterator;
     while($n>0){ $iter->next; $n--;}
-    $iter->next;                        # ref to cell
+    return $iter->next;                        # ref to cell
 }
 sub remove{
     my ($self,$n) = @_;
@@ -95,88 +94,45 @@ sub remove{
     $self->{length}--;
     $self;
 }
-# ----------------
-package Main;
-use strict;
-use warnings;
-use 5.10.0;
-use Data::Dumper;
-use Test::Class;
-local $Data::Dumper::Indent = 1;
-local $Data::Dumper::Purity = 1;
-local $Data::Dumper::Terse = 1;
-
-sub test1{
-    my ($x,$y,$refx);
-    $x=My::List->new;
-    $refx = \$x;
-    say Dumper $refx;
-    say Dumper $$refx;
-}
-sub test2{
-    say "** test2";
-    my $list = My::List->new;
-
-    $list->append("Hello");
-    $list->append("World");
-    $list->append(2011);
-    say Dumper $list;
-
-    my $iter = $list->iterator;
-    while ($iter->has_next ) {
-        say $iter->next->value;
-    }
-}
-sub test3{
-    say "** test3";
-    my $list = My::List->new;
-    foreach my $i (1..400000){
-        $list->append($i);
-    }
-    my $iter = $list->iterator;
-    say ${$iter->next}->value;
-    say ${$iter->next}->value;
-}
-sub test4{
-    my $list = My::List->new;
-    $list->append(undef);
-    $list->append(0);
-    $list->append(100**3);
-    $list->append([1,2,3]);
-    $list->append((1,2,3));
-    $list->append("string");
-    $list->append({ k=>"value",
-                    num=>10,
-                    ary=>[1,2,3],
-                    hash=>{'a',10,'b',20} });
-    $list->append();
-    my $iter = $list->iterator;
-    my $value;
-    while( $value = $iter->next ){
-        say Dumper "dbg", $value;
-    }
-}
-sub test_cell{
-    my @a = (1,2,3);
-    my $x = Cell->new( @a );
-    my $y = Cell->new( \@a );
-    say Dumper $x->value;
-    say Dumper $y->value;
-}
-sub test_ref{
-    my $a = [0, [10,20,30], undef, {}];
-    foreach my $e (@$a){
-        say "elem: ",Dumper $e;
-    }
-    say Dumper "本体",@$a;
-
-    my $len = @$a;
-    say "length: ", $#$a;
-}
-sub main{
-    &test_ref();
-}
-
-$ARGV[0] ? &main() : 0;
 
 1;
+
+__END__
+
+=head1 NAME
+
+Cell, My::List, My::List::Iterator - 単方向リストとその部品
+
+=head1 USAGE
+
+my $list = My::List->new;
+
+$list->append("Hello");
+$list->append("World");
+$list->append(2011);
+
+# => $list : ("Hello" "World" 2011)
+
+$list->insert("こんにちは",2);
+# => $list : ("Hello" "World" "こんにちは" 2011)
+
+$list->remove(1); #第1要素を削除（0から数える）
+# => $list : ("Hello" "こんにちは" 2011)
+
+print $list->nth(3); #第3要素を参照する
+# => 2011
+
+
+=head1 DESCRIPTION
+
+insertの仕様
+リスト長より大きい位置を指定すると、最後尾に追加する。
+負の値を指定すると、頭に追加する。
+
+=head1 AUTHOR
+
+UENO Masaru( id:uenop )
+<Hatena Intern 2011>
+
+=cut
+
