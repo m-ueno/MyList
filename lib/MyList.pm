@@ -26,9 +26,9 @@ sub new{
 sub next{                       # !
     my ($self) = @_;
     if( $self->has_next ){
-        $self->{obj} = ${ $self->{obj}->next };
+        return $self->{obj} = ${ $self->{obj}->next };
     }else{
-        undef;
+        return undef;
     }
 }
 sub has_next{
@@ -70,10 +70,7 @@ sub insert{
 
     my $newcell = Cell->new($value);
     $newcell->{next} = \$self->nth($n);
-    $self->nth($n-1)->{next}=\$newcell;
-    if( $n==0 ){
-        ${$self->{head}}->{next} = \$newcell;
-    }
+    $self->nth($n-1)->{next} = \$newcell;
     $self->{length}++;
     $self;
 }
@@ -81,16 +78,19 @@ sub length{
     my ($self) = @_;
     $self->{length};
 }
-sub nth{                               # 0から
+sub nth{ # 0から数えてn番目のCellを返す。
     my ($self,$n) = @_;
 
     my $iter = $self->iterator;
+    if( $n<0 ){
+        return ${ $self->{head} };      # デリファレンス
+    }
     while($n>0){ $iter->next; $n--;}
-    return $iter->next;                        # ref to cell
+    return $iter->next;                 # NOT a ref
 }
 sub remove{
     my ($self,$n) = @_;
-    $self->nth($n-1)->{next} = $self->nth($n+1);
+    $self->nth($n-1)->{next} = \$self->nth($n+1);
     $self->{length}--;
     $self;
 }
