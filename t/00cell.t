@@ -1,4 +1,4 @@
-package test::Sorter;
+package test::cell;
 use strict;
 use warnings;
 use base qw(Test::Class);
